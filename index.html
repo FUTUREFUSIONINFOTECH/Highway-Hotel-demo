@@ -1,0 +1,1755 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MileStop — Highway Food Pre-Order &amp; Live Tracking Platform</title>
+  <meta name="description" content="Complete interactive demo connecting highway passengers, restaurants, bus drivers, conductors, and super admins." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #0f766e;
+      --accent-dark: #115e59;
+      --ok: #15803d;
+      --warn: #b45309;
+      --err: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    h1, h2, h3, h4 { font-family: "Plus Jakarta Sans", system-ui, sans-serif; margin: 0; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); border: 0; background: none; cursor: pointer; padding: 0; white-space: nowrap; }
+    nav { display: flex; gap: 20px; overflow-x: auto; }
+    .nav-btn {
+      background: none;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      padding: 6px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+    .nav-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+    main { max-width: 1200px; width: 100%; margin: 0 auto; padding: 24px 20px 64px; flex: 1; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .grid-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      white-space: nowrap;
+      font-family: inherit;
+      text-decoration: none;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--accent-dark); }
+    .btn-dark { background: #0f172a; color: #fff; }
+    .btn-dark:hover:not(:disabled) { background: #1e293b; }
+    .btn-outline { background: #fff; color: var(--text); border-color: #cbd5e1; }
+    .btn-outline:hover:not(:disabled) { background: #f1f5f9; }
+    .btn-danger { background: #fff; color: var(--err); border-color: #fca5a5; }
+    .btn-danger:hover:not(:disabled) { background: #fef2f2; }
+    .btn-amber { background: #d97706; color: #fff; }
+    .btn-amber:hover:not(:disabled) { background: #b45309; }
+    .btn-sm { padding: 6px 10px; font-size: 11px; }
+    .seg { display: inline-flex; background: #e2e8f0; padding: 4px; border-radius: 10px; gap: 4px; flex-wrap: wrap; max-width: 100%; }
+    .seg button { border: 0; background: transparent; padding: 7px 12px; border-radius: 7px; font-size: 12px; font-weight: 600; color: #475569; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .seg button.active { background: #fff; color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+    .muted { color: var(--muted); font-size: 12px; }
+    .hr { height: 1px; background: var(--border); margin: 14px 0; }
+    input, select, textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      background: #fff;
+      color: var(--text);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; text-align: left; }
+    th { background: #f8fafc; color: #475569; font-weight: 600; }
+    .num { text-align: right; font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+    .map-box { background: #0f172a; color: #fff; border-radius: 14px; padding: 16px; border: 1px solid #1e293b; }
+    .stepper { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 16px 0; }
+    .step-bar { height: 6px; border-radius: 99px; background: #e2e8f0; margin-bottom: 6px; }
+    .step-bar.on { background: var(--accent); }
+    .step-bar.fail { background: #fecaca; }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 50;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 12px;
+      box-shadow: 0 10px 25px rgba(15,23,42,0.25);
+      display: none;
+    }
+    footer { background: #fff; border-top: 1px solid var(--border); padding: 16px 20px; font-size: 12px; color: var(--muted); }
+    .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <button type="button" class="brand" id="brand-home">MileStop</button>
+      <nav id="portal-nav"></nav>
+      <button type="button" class="btn btn-outline" id="quick-reset">Reset Demo</button>
+    </div>
+  </header>
+
+  <main id="app-root"></main>
+
+  <div id="toast" class="toast"></div>
+
+  <footer>
+    <div class="footer-inner">
+      <span>MileStop — Highway Food Pre-Order &amp; Live Bus Tracking Demo</span>
+      <span class="mono">Passenger QR · Restaurant App · Driver &amp; Conductor · Super Admin</span>
+    </div>
+  </footer>
+
+  <script>
+    // ---------- INITIAL DATA ----------
+    function createInitialState() {
+      return {
+        portal: "PASSENGER",
+        passengerScreen: "QR_LANDING",
+        selectedQrId: "qr-tn45",
+        manualQrInput: "",
+        lookupOrderInput: "ORD-2026-8841",
+        selectedRestId: "rest-1",
+        selectedCategory: "ALL",
+        vegOnly: false,
+        cart: {},
+        orderMode: "TAKEAWAY",
+        dineInGuests: 2,
+        passengerName: "",
+        passengerPhone: "",
+        specialInstructions: "",
+        dietaryNotes: "",
+        payMethod: "UPI",
+        simulatePayFail: false,
+        lastPaymentError: "",
+        activeOrderId: "ORD-2026-8841",
+
+        restaurantTab: "ORDERS",
+        restOrderFilter: "ACTIVE",
+        activeRestAdminId: "rest-1",
+        newMenuItem: { name: "", category: "Hot Tiffin", price: 180, prep: 10, veg: true },
+        newStaffForm: { name: "", phone: "", role: "KITCHEN_STAFF" },
+
+        driverTab: "GPS",
+        autoDrive: false,
+        offlineMode: false,
+        offlineBuffer: [],
+
+        adminTab: "OVERVIEW",
+        adminRange: "ALL",
+        newRestForm: { name: "", owner: "", phone: "", city: "", gst: "", fssai: "", commission: 5 },
+        newPartForm: { vehicleId: "veh-1", restaurantId: "rest-4", stopOrder: 4, window: "01:30 – 01:50" },
+
+        restaurants: [
+          {
+            id: "rest-1",
+            name: "Saravana Highway Plaza",
+            owner: "Karthik Subramanian",
+            city: "Tindivanam",
+            address: "KM 124, NH-44, Tindivanam",
+            phone: "+91 98401 11223",
+            gst: "33AAACS4829K1Z5",
+            fssai: "12423009001482",
+            bank: "HDFC0001492 · •••• 4821",
+            hours: "00:00 – 23:59",
+            lat: 12.2305,
+            lng: 79.6552,
+            commissionPercent: 5,
+            status: "APPROVED",
+            acceptingOrders: true,
+            stopOrder: 1,
+            window: "21:15 – 21:35",
+            cuisine: "South Indian Tiffin, Filter Coffee & Express Meals",
+            staff: [
+              { name: "Karthik Subramanian", phone: "+91 98401 11223", role: "OWNER" },
+              { name: "Priya Dharshini", phone: "+91 98401 11224", role: "KITCHEN_STAFF" }
+            ]
+          },
+          {
+            id: "rest-2",
+            name: "A2B Grand Tollway Kitchen",
+            owner: "Meenakshi Sundaram",
+            city: "Villupuram",
+            address: "KM 168, NH-44 Bypass, Villupuram",
+            phone: "+91 98402 33445",
+            gst: "33AAACA9120M1Z2",
+            fssai: "12423012008819",
+            bank: "ICIC0000831 · •••• 9910",
+            hours: "00:00 – 23:59",
+            lat: 11.9401,
+            lng: 79.4861,
+            commissionPercent: 6,
+            status: "APPROVED",
+            acceptingOrders: true,
+            stopOrder: 2,
+            window: "22:00 – 22:20",
+            cuisine: "Vegetarian Thalis, Snacks & Heritage Sweets",
+            staff: [{ name: "Meenakshi Sundaram", phone: "+91 98402 33445", role: "OWNER" }]
+          },
+          {
+            id: "rest-3",
+            name: "Temple Courtyard Biryani",
+            owner: "Aravindh Rajan",
+            city: "Tiruchirappalli",
+            address: "KM 328, NH-44 Samayapuram, Trichy",
+            phone: "+91 98403 66778",
+            gst: "33AABCT7712P1Z8",
+            fssai: "12423015004210",
+            bank: "SBIN0004120 · •••• 3109",
+            hours: "00:00 – 23:59",
+            lat: 10.9355,
+            lng: 78.7385,
+            commissionPercent: 5,
+            status: "APPROVED",
+            acceptingOrders: true,
+            stopOrder: 3,
+            window: "00:15 – 00:40",
+            cuisine: "Clay-Pot Dum Biryani & North Indian Curries",
+            staff: [{ name: "Aravindh Rajan", phone: "+91 98403 66778", role: "OWNER" }]
+          },
+          {
+            id: "rest-4",
+            name: "Madurai Highway Spice Hub",
+            owner: "Senthil Pandian",
+            city: "Melur",
+            address: "KM 412, NH-44 Toll Plaza, Melur",
+            phone: "+91 98404 99001",
+            gst: "33AABCM4400P1Z1",
+            fssai: "12423019002741",
+            bank: "AXIS0000214 · •••• 7742",
+            hours: "00:00 – 23:59",
+            lat: 10.0500,
+            lng: 78.3400,
+            commissionPercent: 5,
+            status: "PENDING",
+            acceptingOrders: false,
+            stopOrder: 4,
+            window: "01:30 – 01:50",
+            cuisine: "Chettinad Meals & Parotta Combos",
+            staff: [{ name: "Senthil Pandian", phone: "+91 98404 99001", role: "OWNER" }]
+          }
+        ],
+        menuItems: [
+          { id: "m1", restaurantId: "rest-1", category: "Hot Tiffin", name: "Ghee Roast Masala Dosa", price: 165, prep: 10, veg: true, available: true },
+          { id: "m2", restaurantId: "rest-1", category: "Beverages", name: "Filter Coffee & Medu Vada", price: 120, prep: 6, veg: true, available: true },
+          { id: "m3", restaurantId: "rest-1", category: "Meals", name: "South Indian Executive Thali", price: 240, prep: 12, veg: true, available: true },
+          { id: "m4", restaurantId: "rest-2", category: "Meals", name: "North Highway Paneer Thali", price: 290, prep: 14, veg: true, available: true },
+          { id: "m5", restaurantId: "rest-2", category: "Hot Tiffin", name: "Madras Filter Coffee & Pongal", price: 155, prep: 8, veg: true, available: true },
+          { id: "m6", restaurantId: "rest-3", category: "Dum Biryani", name: "Saffron Chicken Dum Biryani", price: 340, prep: 15, veg: false, available: true },
+          { id: "m7", restaurantId: "rest-3", category: "Dum Biryani", name: "Subz Zafrani Dum Biryani", price: 260, prep: 12, veg: true, available: true },
+          { id: "m8", restaurantId: "rest-4", category: "Meals", name: "Madurai Kari Dosai Combo", price: 220, prep: 12, veg: false, available: true }
+        ],
+        companies: [
+          { id: "comp-1", name: "Kaveri Intercity Travels", owner: "Raghavan Nair", city: "Chennai", regNo: "TN-01-TRV-2019-8841", status: "APPROVED" },
+          { id: "comp-2", name: "Deccan Express Coaches", owner: "Ananya Deshpande", city: "Pune", regNo: "MH-12-TRV-2021-3310", status: "APPROVED" }
+        ],
+        vehicles: [
+          {
+            id: "veh-1",
+            companyId: "comp-1",
+            company: "Kaveri Intercity Travels",
+            reg: "TN 45 AB 1234",
+            type: "BUS",
+            seats: 44,
+            route: "Chennai → Madurai NH-44 Express",
+            origin: { name: "Chennai", lat: 13.0694, lng: 80.1948 },
+            dest: { name: "Madurai", lat: 9.9391, lng: 78.1586 },
+            driver: "Murugan Selvam",
+            conductor: "Senthil Kumar"
+          }
+        ],
+        partnerships: [
+          { id: "p1", vehicleId: "veh-1", restaurantId: "rest-1", stopOrder: 1, window: "21:15 – 21:35", status: "APPROVED" },
+          { id: "p2", vehicleId: "veh-1", restaurantId: "rest-2", stopOrder: 2, window: "22:00 – 22:20", status: "APPROVED" },
+          { id: "p3", vehicleId: "veh-1", restaurantId: "rest-3", stopOrder: 3, window: "00:15 – 00:40", status: "APPROVED" },
+          { id: "p4", vehicleId: "veh-1", restaurantId: "rest-4", stopOrder: 4, window: "01:30 – 01:50", status: "PENDING" }
+        ],
+        trip: {
+          id: "TRIP-101",
+          status: "IN_PROGRESS",
+          progress: 0.16,
+          speedKmh: 66,
+          startedAt: "19:50"
+        },
+        tripHistory: [
+          { id: "TRIP-098", vehicle: "TN 45 AB 1234", route: "Chennai → Madurai NH-44 Express", date: "Yesterday", ordersCount: 14 }
+        ],
+        qrCodes: [
+          { id: "qr-tn45", token: "MSQR_TN45AB1234_A91F", vehicle: "TN 45 AB 1234", active: true, scans: 42, orders: 4 }
+        ],
+        orders: [
+          {
+            id: "ORD-2026-8841",
+            pickupCode: "MS-4829",
+            restaurantId: "rest-1",
+            passenger: "Ananya Krishnan",
+            phone: "+91 98409 11220",
+            mode: "DINE_IN",
+            guests: 2,
+            notes: "Seat 14A/14B · Extra sambar",
+            items: [{ name: "Ghee Roast Masala Dosa", qty: 2, price: 165 }],
+            subtotal: 330, gst: 17, fee: 10, gross: 357,
+            commissionPct: 5, commissionAmt: 18, gatewayFee: 7, payable: 332,
+            paymentStatus: "PAID", status: "PREPARING", settlement: "PENDING", dateRange: "TODAY"
+          },
+          {
+            id: "ORD-2026-8842",
+            pickupCode: "MS-7194",
+            restaurantId: "rest-1",
+            passenger: "Deepak Venkat",
+            phone: "+91 98412 77341",
+            mode: "TAKEAWAY",
+            guests: 0,
+            notes: "Pack hot for bay pickup",
+            items: [{ name: "Filter Coffee & Medu Vada", qty: 1, price: 120 }],
+            subtotal: 120, gst: 6, fee: 10, gross: 136,
+            commissionPct: 5, commissionAmt: 7, gatewayFee: 3, payable: 126,
+            paymentStatus: "PAID", status: "NEW", settlement: "PENDING", dateRange: "TODAY"
+          },
+          {
+            id: "ORD-2026-8839",
+            pickupCode: "MS-3015",
+            restaurantId: "rest-2",
+            passenger: "Harish Balaji",
+            phone: "+91 97901 33900",
+            mode: "TAKEAWAY",
+            guests: 0,
+            notes: "",
+            items: [{ name: "North Highway Paneer Thali", qty: 1, price: 290 }],
+            subtotal: 290, gst: 15, fee: 10, gross: 315,
+            commissionPct: 6, commissionAmt: 19, gatewayFee: 6, payable: 290,
+            paymentStatus: "PAID", status: "READY", settlement: "PENDING", dateRange: "TODAY"
+          },
+          {
+            id: "ORD-2026-8810",
+            pickupCode: "MS-1104",
+            restaurantId: "rest-3",
+            passenger: "Suresh Natarajan",
+            phone: "+91 98407 88912",
+            mode: "DINE_IN",
+            guests: 2,
+            notes: "",
+            items: [{ name: "Saffron Chicken Dum Biryani", qty: 2, price: 340 }],
+            subtotal: 680, gst: 34, fee: 10, gross: 724,
+            commissionPct: 5, commissionAmt: 36, gatewayFee: 14, payable: 674,
+            paymentStatus: "PAID", status: "COMPLETED", settlement: "SETTLED", dateRange: "YESTERDAY"
+          }
+        ],
+        paymentFailures: 1,
+        notifications: [
+          { target: "DRIVER", title: "Approaching Stop 1: Saravana Highway Plaza", msg: "2 passenger pre-orders queued (1 Preparing, 1 New)." },
+          { target: "DRIVER", title: "Stop 2 Order Ready", msg: "ORD-2026-8839 at A2B Grand Tollway is READY for bay pickup." }
+        ],
+        auditLogs: [
+          "Super Admin approved Saravana Highway Plaza on TN 45 AB 1234 (Stop 1)",
+          "Driver Murugan Selvam started Trip TRIP-101 with GPS tracking active"
+        ]
+      };
+    }
+
+    let state = createInitialState();
+    let autoDriveTimer = null;
+
+    // ---------- SAFE DOM BUILDER (FLATTENS NESTED ARRAYS) ----------
+    function el(tag, attrs = {}, children = []) {
+      const node = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) {
+        if (k === "class") node.className = v;
+        else if (k === "style") node.style.cssText = v;
+        else if (k === "checked" || k === "disabled" || k === "selected") {
+          if (v) node[k] = true;
+        } else if (k.startsWith("on") && typeof v === "function") {
+          node.addEventListener(k.slice(2).toLowerCase(), v);
+        } else if (v !== undefined && v !== null) {
+          node.setAttribute(k, String(v));
+        }
+      }
+      function appendItem(item) {
+        if (item === null || item === undefined || item === false) return;
+        if (Array.isArray(item)) {
+          item.forEach(appendItem);
+        } else if (item instanceof Node) {
+          node.appendChild(item);
+        } else {
+          node.appendChild(document.createTextNode(String(item)));
+        }
+      }
+      appendItem(children);
+      return node;
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => { t.style.display = "none"; }, 2800);
+    }
+
+    // ---------- GEO & TELEMETRY ----------
+    function haversineKm(a, b) {
+      const toRad = (d) => (d * Math.PI) / 180;
+      const dLat = toRad(b.lat - a.lat);
+      const dLon = toRad(b.lng - a.lng);
+      const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLon / 2) ** 2;
+      return Number((6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h))).toFixed(1));
+    }
+
+    function getApprovedStops() {
+      const approvedPartRestIds = new Set(
+        state.partnerships.filter((p) => p.status === "APPROVED").map((p) => p.restaurantId)
+      );
+      return state.restaurants
+        .filter((r) => r.status === "APPROVED" && approvedPartRestIds.has(r.id))
+        .sort((a, b) => a.stopOrder - b.stopOrder);
+    }
+
+    function getBusPoint() {
+      const veh = state.vehicles[0];
+      const stops = getApprovedStops();
+      const pts = [veh.origin, ...stops, veh.dest];
+      const segs = pts.length - 1;
+      const scaled = Math.max(0, Math.min(1, state.trip.progress)) * segs;
+      const idx = Math.min(segs - 1, Math.floor(scaled));
+      const t = scaled - idx;
+      return {
+        lat: Number((pts[idx].lat + (pts[idx + 1].lat - pts[idx].lat) * t).toFixed(4)),
+        lng: Number((pts[idx].lng + (pts[idx + 1].lng - pts[idx].lng) * t).toFixed(4))
+      };
+    }
+
+    function getStopTelemetry(rest) {
+      const veh = state.vehicles[0];
+      const bus = state.trip.status === "IN_PROGRESS" ? getBusPoint() : veh.origin;
+      const dist = haversineKm(bus, rest);
+      const eta = Math.max(1, Math.round((dist / Math.max(state.trip.speedKmh, 25)) * 60));
+      return { dist, eta };
+    }
+
+    function buildSvgRouteMap(highlightRestId) {
+      const veh = state.vehicles[0];
+      const approved = getApprovedStops();
+      const pts = [veh.origin, ...approved, veh.dest];
+      const bus = getBusPoint();
+      const all = [...pts, bus];
+      const minLat = Math.min(...all.map((p) => p.lat)), maxLat = Math.max(...all.map((p) => p.lat));
+      const minLng = Math.min(...all.map((p) => p.lng)), maxLng = Math.max(...all.map((p) => p.lng));
+      const W = 640, H = 210, px = 56, py = 34;
+      const proj = (lat, lng) => ({
+        x: px + ((lng - minLng) / Math.max(0.2, maxLng - minLng)) * (W - px * 2),
+        y: H - py - ((lat - minLat) / Math.max(0.2, maxLat - minLat)) * (H - py * 2)
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(svgNS, "svg");
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      svg.setAttribute("style", "width:100%; height:200px; display:block;");
+
+      const linePts = pts.map((p) => proj(p.lat, p.lng));
+      const pathD = linePts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
+
+      const baseLine = document.createElementNS(svgNS, "path");
+      baseLine.setAttribute("d", pathD);
+      baseLine.setAttribute("fill", "none");
+      baseLine.setAttribute("stroke", "#334155");
+      baseLine.setAttribute("stroke-width", "6");
+      baseLine.setAttribute("stroke-linecap", "round");
+      svg.appendChild(baseLine);
+
+      const dashLine = document.createElementNS(svgNS, "path");
+      dashLine.setAttribute("d", pathD);
+      dashLine.setAttribute("fill", "none");
+      dashLine.setAttribute("stroke", "#14b8a6");
+      dashLine.setAttribute("stroke-width", "2.5");
+      dashLine.setAttribute("stroke-dasharray", "6 6");
+      svg.appendChild(dashLine);
+
+      approved.forEach((r) => {
+        const pt = proj(r.lat, r.lng);
+        const tel = getStopTelemetry(r);
+        const c = document.createElementNS(svgNS, "circle");
+        c.setAttribute("cx", pt.x);
+        c.setAttribute("cy", pt.y);
+        c.setAttribute("r", r.id === highlightRestId ? "8" : "6");
+        c.setAttribute("fill", r.id === highlightRestId ? "#d97706" : "#0f172a");
+        c.setAttribute("stroke", r.id === highlightRestId ? "#fef3c7" : "#14b8a6");
+        c.setAttribute("stroke-width", "2.5");
+        svg.appendChild(c);
+
+        const lbl = document.createElementNS(svgNS, "text");
+        lbl.setAttribute("x", pt.x);
+        lbl.setAttribute("y", pt.y - 12);
+        lbl.setAttribute("text-anchor", "middle");
+        lbl.setAttribute("fill", "#e2e8f0");
+        lbl.setAttribute("font-size", "10");
+        lbl.setAttribute("font-weight", "600");
+        lbl.textContent = `${r.stopOrder}. ${r.name.split(" ")[0]}`;
+        svg.appendChild(lbl);
+
+        const sub = document.createElementNS(svgNS, "text");
+        sub.setAttribute("x", pt.x);
+        sub.setAttribute("y", pt.y + 17);
+        sub.setAttribute("text-anchor", "middle");
+        sub.setAttribute("fill", "#94a3b8");
+        sub.setAttribute("font-size", "9");
+        sub.setAttribute("font-family", "monospace");
+        sub.textContent = `${tel.dist}km · ${tel.eta}m`;
+        svg.appendChild(sub);
+      });
+
+      if (state.trip.status === "IN_PROGRESS") {
+        const bp = proj(bus.lat, bus.lng);
+        const halo = document.createElementNS(svgNS, "circle");
+        halo.setAttribute("cx", bp.x);
+        halo.setAttribute("cy", bp.y);
+        halo.setAttribute("r", "14");
+        halo.setAttribute("fill", "#10b981");
+        halo.setAttribute("fill-opacity", "0.22");
+        svg.appendChild(halo);
+
+        const dot = document.createElementNS(svgNS, "circle");
+        dot.setAttribute("cx", bp.x);
+        dot.setAttribute("cy", bp.y);
+        dot.setAttribute("r", "7");
+        dot.setAttribute("fill", "#10b981");
+        dot.setAttribute("stroke", "#fff");
+        dot.setAttribute("stroke-width", "2");
+        svg.appendChild(dot);
+
+        const badge = document.createElementNS(svgNS, "text");
+        badge.setAttribute("x", bp.x);
+        badge.setAttribute("y", bp.y - 14);
+        badge.setAttribute("text-anchor", "middle");
+        badge.setAttribute("fill", "#6ee7b7");
+        badge.setAttribute("font-size", "9");
+        badge.setAttribute("font-weight", "700");
+        badge.setAttribute("font-family", "monospace");
+        badge.textContent = "LIVE BUS";
+        svg.appendChild(badge);
+      }
+
+      return el("div", { class: "map-box" }, [
+        el("div", { class: "row", style: "margin-bottom:8px;" }, [
+          el("div", {}, [
+            el("p", { class: "muted", style: "color:#94a3b8; margin:0;" }, "Live Highway Corridor Telemetry"),
+            el("strong", { style: "font-size:14px;" }, `${veh.reg} · ${veh.route}`)
+          ]),
+          el("span", { class: "mono", style: "font-size:12px; color:#34d399;" },
+            `${state.trip.status.replace(/_/g, " ")} · ${Math.round(state.trip.progress * 100)}% · ${state.trip.speedKmh} km/h`
+          )
+        ]),
+        svg
+      ]);
+    }
+
+    // ---------- PORTAL 1: PASSENGER QR ----------
+    function renderPassenger() {
+      const wrap = el("div", { style: "display:grid; gap:20px;" });
+      const qr = state.qrCodes[0];
+      const veh = state.vehicles[0];
+      const activeRest = state.restaurants.find((r) => r.id === state.selectedRestId) || state.restaurants[0];
+      const cartEntries = Object.entries(state.cart).filter(([, q]) => q > 0).map(([id, q]) => {
+        const item = state.menuItems.find((m) => m.id === id);
+        return item ? { item, q } : null;
+      }).filter(Boolean);
+      const subtotal = cartEntries.reduce((s, x) => s + x.item.price * x.q, 0);
+      const gst = Math.round(subtotal * 0.05);
+      const fee = subtotal > 0 ? 10 : 0;
+      const total = subtotal + gst + fee;
+
+      wrap.appendChild(el("div", { class: "row" }, [
+        el("div", {}, [
+          el("p", { class: "muted", style: "margin:0;" }, `${veh.reg} · ${veh.route}`),
+          el("h1", { style: "font-size:22px; margin-top:2px;" },
+            state.passengerScreen === "QR_LANDING" ? "Scan Bus QR & Pre-Order Along Route" :
+            state.passengerScreen === "RESTAURANTS" ? "Approved Partner Restaurants" :
+            state.passengerScreen === "MENU" ? activeRest.name :
+            state.passengerScreen === "CART" ? "Review Meal Cart" :
+            state.passengerScreen === "PREFERENCES" ? "Dine-in or Takeaway Preferences" :
+            state.passengerScreen === "PAYMENT" ? "Verified Online Payment" :
+            state.passengerScreen === "TRACKING" ? "Live Order & Bus GPS Tracking" :
+            "Pickup & Dine-in Collection Pass"
+          )
+        ]),
+        el("div", { style: "display:flex; gap:8px; flex-wrap:wrap;" }, [
+          state.passengerScreen !== "QR_LANDING" && el("button", {
+            type: "button", class: "btn btn-outline",
+            onClick: () => { state.passengerScreen = "QR_LANDING"; render(); }
+          }, "QR Home"),
+          cartEntries.length > 0 && el("button", {
+            type: "button", class: "btn btn-primary",
+            onClick: () => { state.passengerScreen = "CART"; render(); }
+          }, `Cart (${cartEntries.reduce((s,x)=>s+x.q,0)}) · ₹${total}`),
+          state.activeOrderId && el("button", {
+            type: "button", class: "btn btn-dark",
+            onClick: () => { state.passengerScreen = "TRACKING"; render(); }
+          }, `Track ${state.activeOrderId}`)
+        ])
+      ]));
+
+      if (state.passengerScreen === "QR_LANDING") {
+        wrap.appendChild(el("div", { class: "grid-2" }, [
+          el("div", { class: "card", style: "display:grid; gap:14px;" }, [
+            el("p", { class: "muted", style: "color:var(--accent); font-weight:600; margin:0;" }, "Zero App Install Required"),
+            el("h2", { style: "font-size:24px;" }, "Pre-order fresh meals from your bus seat before arrival."),
+            el("p", { class: "muted", style: "margin:0;" }, "Scan the opaque QR code inside your coach, browse route-partnered restaurants, pay online, and let kitchens prepare to your live GPS arrival."),
+            el("div", { style: "display:flex; gap:8px; flex-wrap:wrap;" }, [
+              el("input", {
+                type: "text", style: "flex:1; min-width:190px;",
+                placeholder: `Paste QR Token (e.g. ${qr.token})`,
+                value: state.manualQrInput,
+                onInput: (e) => { state.manualQrInput = e.target.value; }
+              }),
+              el("button", {
+                type: "button", class: "btn btn-primary",
+                onClick: () => {
+                  const tok = state.manualQrInput.trim() || qr.token;
+                  if (tok !== qr.token && tok !== qr.id) { showToast("Unknown QR identifier. Try clicking Scan Bus QR below."); return; }
+                  if (!qr.active) { showToast("This bus QR has been deactivated by Admin."); return; }
+                  qr.scans += 1;
+                  state.passengerScreen = "RESTAURANTS";
+                  render();
+                }
+              }, "Open Bus Menu")
+            ]),
+            el("div", { class: "hr", style: "margin:4px 0;" }),
+            el("div", { style: "display:flex; gap:8px; flex-wrap:wrap;" }, [
+              el("input", {
+                type: "text", style: "flex:1; min-width:190px;",
+                placeholder: "Track Order ID (e.g. ORD-2026-8841)",
+                value: state.lookupOrderInput,
+                onInput: (e) => { state.lookupOrderInput = e.target.value; }
+              }),
+              el("button", {
+                type: "button", class: "btn btn-outline",
+                onClick: () => {
+                  const found = state.orders.find((o) => o.id === state.lookupOrderInput.trim());
+                  if (!found) { showToast("Order ID not found."); return; }
+                  state.activeOrderId = found.id;
+                  state.passengerScreen = "TRACKING";
+                  render();
+                }
+              }, "Track Order")
+            ])
+          ]),
+          el("div", { class: "card", style: "display:flex; flex-direction:column; justify-content:space-between; gap:14px;" }, [
+            el("div", {}, [
+              el("p", { class: "muted", style: "margin:0;" }, `${veh.company} · ${veh.type} (${veh.seats} seats)`),
+              el("h3", { class: "mono", style: "font-size:20px; margin:6px 0;" }, veh.reg),
+              el("p", { style: "font-size:14px; margin:0 0 8px;" }, veh.route),
+              el("p", { class: "muted mono", style: "margin:0;" }, `QR Token: ${qr.token} · Trip ${state.trip.status.replace(/_/g, " ")}`)
+            ]),
+            el("button", {
+              type: "button", class: "btn btn-primary",
+              onClick: () => {
+                if (!qr.active) { showToast("QR deactivated by Super Admin."); return; }
+                qr.scans += 1;
+                state.passengerScreen = "RESTAURANTS";
+                render();
+              }
+            }, "Scan Bus QR & Browse Restaurants")
+          ])
+        ]));
+      }
+
+      if (state.passengerScreen === "RESTAURANTS") {
+        wrap.appendChild(buildSvgRouteMap());
+        const eligible = getApprovedStops();
+        wrap.appendChild(el("div", { class: "grid-3" }, eligible.map((r) => {
+          const tel = getStopTelemetry(r);
+          return el("div", { class: "card", style: "display:flex; flex-direction:column; justify-content:space-between; gap:12px;" }, [
+            el("div", {}, [
+              el("p", { class: "muted", style: "margin:0;" }, `Stop ${r.stopOrder} · ${r.city} · ${tel.dist} km`),
+              el("h3", { style: "font-size:17px; margin-top:4px;" }, r.name),
+              el("p", { class: "muted", style: "margin-top:6px;" }, r.cuisine),
+              el("div", { class: "hr" }),
+              el("div", { class: "row" }, [
+                el("span", { class: "mono", style: "font-size:12px; font-weight:700; color:var(--accent);" }, `ETA ${tel.eta} mins`),
+                el("span", { class: "muted mono" }, r.window)
+              ])
+            ]),
+            r.acceptingOrders
+              ? el("button", {
+                  type: "button", class: "btn btn-primary",
+                  onClick: () => {
+                    if (state.selectedRestId !== r.id) state.cart = {};
+                    state.selectedRestId = r.id;
+                    state.selectedCategory = "ALL";
+                    state.passengerScreen = "MENU";
+                    render();
+                  }
+                }, "Browse Menu")
+              : el("button", { type: "button", class: "btn btn-outline", disabled: true }, "Paused by Restaurant")
+          ]);
+        })));
+      }
+
+      if (state.passengerScreen === "MENU") {
+        const tel = getStopTelemetry(activeRest);
+        const restMenu = state.menuItems.filter((m) => m.restaurantId === activeRest.id);
+        const cats = ["ALL", ...Array.from(new Set(restMenu.map((m) => m.category)))];
+        const items = restMenu.filter((m) =>
+          (state.selectedCategory === "ALL" || m.category === state.selectedCategory) && (!state.vegOnly || m.veg)
+        );
+        wrap.appendChild(el("div", { class: "card row" }, [
+          el("div", {}, [
+            el("p", { class: "muted", style: "margin:0;" }, `${activeRest.address} · Bus ETA ${tel.eta} mins (${tel.dist} km)`),
+            el("h3", { style: "font-size:16px; margin-top:2px;" }, activeRest.cuisine)
+          ]),
+          el("div", { style: "display:flex; gap:8px; flex-wrap:wrap;" }, [
+            el("button", {
+              type: "button", class: `btn ${state.vegOnly ? "btn-primary" : "btn-outline"}`,
+              onClick: () => { state.vegOnly = !state.vegOnly; render(); }
+            }, state.vegOnly ? "Pure Veg: ON" : "Pure Veg Filter"),
+            el("button", {
+              type: "button", class: "btn btn-outline",
+              onClick: () => { state.passengerScreen = "RESTAURANTS"; render(); }
+            }, "Change Restaurant")
+          ])
+        ]));
+
+        wrap.appendChild(el("div", { class: "seg" }, cats.map((c) => el("button", {
+          type: "button", class: state.selectedCategory === c ? "active" : "",
+          onClick: () => { state.selectedCategory = c; render(); }
+        }, c === "ALL" ? "All Categories" : c))));
+
+        wrap.appendChild(el("div", { class: "grid-2" }, items.map((m) => {
+          const qty = state.cart[m.id] || 0;
+          return el("div", { class: "card row" }, [
+            el("div", { style: "flex:1;" }, [
+              el("p", { class: "muted", style: "margin:0;" }, `${m.veg ? "VEG" : "NON-VEG"} · ${m.category} · Prep ${m.prep}m`),
+              el("h4", { style: "font-size:15px; margin:4px 0;" }, m.name),
+              el("strong", { class: "mono" }, `₹${m.price}`)
+            ]),
+            !m.available
+              ? el("span", { class: "muted" }, "Sold Out")
+              : qty === 0
+                ? el("button", {
+                    type: "button", class: "btn btn-primary",
+                    onClick: () => { state.cart[m.id] = 1; render(); }
+                  }, "Add to Cart")
+                : el("div", { style: "display:inline-flex; align-items:center; border:1px solid var(--accent); border-radius:8px; overflow:hidden;" }, [
+                    el("button", { type: "button", class: "btn btn-sm", style: "background:#fff;", onClick: () => { state.cart[m.id] = Math.max(0, qty - 1); render(); } }, "−"),
+                    el("span", { class: "mono", style: "padding:0 10px; font-weight:700;" }, qty),
+                    el("button", { type: "button", class: "btn btn-sm", style: "background:#fff;", onClick: () => { state.cart[m.id] = qty + 1; render(); } }, "+")
+                  ])
+          ]);
+        })));
+      }
+
+      if (state.passengerScreen === "CART") {
+        wrap.appendChild(el("div", { class: "card", style: "max-width:640px; margin:0 auto; width:100%;" }, [
+          el("h3", { style: "font-size:18px;" }, activeRest.name),
+          el("div", { class: "hr" }),
+          cartEntries.length === 0
+            ? el("div", { style: "display:grid; gap:12px;" }, [
+                el("p", { class: "muted" }, "Your cart is empty."),
+                el("button", { type: "button", class: "btn btn-primary", onClick: () => { state.passengerScreen = "MENU"; render(); } }, "Browse Menu")
+              ])
+            : el("div", {}, [
+                cartEntries.map(({ item, q }) => el("div", { class: "row", style: "padding:8px 0; border-bottom:1px solid #f1f5f9;" }, [
+                  el("span", {}, item.name),
+                  el("div", { style: "display:flex; align-items:center; gap:10px;" }, [
+                    el("div", { style: "display:inline-flex; align-items:center; border:1px solid #cbd5e1; border-radius:6px;" }, [
+                      el("button", { type: "button", class: "btn btn-sm", style: "background:#fff;", onClick: () => { state.cart[item.id] = Math.max(0, q - 1); render(); } }, "−"),
+                      el("span", { class: "mono", style: "padding:0 8px; font-size:12px;" }, q),
+                      el("button", { type: "button", class: "btn btn-sm", style: "background:#fff;", onClick: () => { state.cart[item.id] = q + 1; render(); } }, "+")
+                    ]),
+                    el("span", { class: "mono", style: "min-width:54px; text-align:right;" }, `₹${item.price * q}`)
+                  ])
+                ])),
+                el("div", { style: "margin-top:12px; display:grid; gap:6px; font-size:13px;" }, [
+                  el("div", { class: "row" }, [el("span", { class: "muted" }, "Subtotal"), el("span", { class: "mono" }, `₹${subtotal}`)]),
+                  el("div", { class: "row" }, [el("span", { class: "muted" }, "GST (5%)"), el("span", { class: "mono" }, `₹${gst}`)]),
+                  el("div", { class: "row" }, [el("span", { class: "muted" }, "Platform Fee"), el("span", { class: "mono" }, `₹${fee}`)]),
+                  el("div", { class: "row", style: "font-weight:700; font-size:15px; padding-top:8px; border-top:1px solid var(--border);" }, [
+                    el("span", {}, "Total Payable"), el("span", { class: "mono" }, `₹${total}`)
+                  ])
+                ]),
+                el("button", {
+                  type: "button", class: "btn btn-primary", style: "width:100%; margin-top:16px;",
+                  onClick: () => { state.passengerScreen = "PREFERENCES"; render(); }
+                }, "Continue to Dine-In / Takeaway")
+              ])
+        ]));
+      }
+
+      if (state.passengerScreen === "PREFERENCES") {
+        wrap.appendChild(el("div", { class: "card", style: "max-width:640px; margin:0 auto; width:100%; display:grid; gap:14px;" }, [
+          el("div", {}, [
+            el("p", { class: "muted", style: "margin-bottom:8px;" }, "Mandatory Order Mode"),
+            el("div", { class: "grid-2" }, [
+              el("button", {
+                type: "button", class: `btn ${state.orderMode === "DINE_IN" ? "btn-primary" : "btn-outline"}`,
+                onClick: () => { state.orderMode = "DINE_IN"; render(); }
+              }, "Dine-in (Table Ready)"),
+              el("button", {
+                type: "button", class: `btn ${state.orderMode === "TAKEAWAY" ? "btn-primary" : "btn-outline"}`,
+                onClick: () => { state.orderMode = "TAKEAWAY"; render(); }
+              }, "Takeaway (Bay Pickup)")
+            ])
+          ]),
+          state.orderMode === "DINE_IN" && el("div", {}, [
+            el("label", { class: "muted" }, "Number of Guests"),
+            el("input", { type: "number", min: 1, max: 20, value: state.dineInGuests, onInput: (e) => { state.dineInGuests = Number(e.target.value || 1); } })
+          ]),
+          el("div", { class: "grid-2" }, [
+            el("div", {}, [
+              el("label", { class: "muted" }, "Passenger Name"),
+              el("input", { type: "text", placeholder: "e.g. Karthik (Seat 12A)", value: state.passengerName, onInput: (e) => { state.passengerName = e.target.value; } })
+            ]),
+            el("div", {}, [
+              el("label", { class: "muted" }, "Mobile Number"),
+              el("input", { type: "tel", placeholder: "+91 98400 12345", value: state.passengerPhone, onInput: (e) => { state.passengerPhone = e.target.value; } })
+            ])
+          ]),
+          el("div", { class: "grid-2" }, [
+            el("div", {}, [
+              el("label", { class: "muted" }, "Special Instructions"),
+              el("input", { type: "text", placeholder: "Extra chutney, separate packing...", value: state.specialInstructions, onInput: (e) => { state.specialInstructions = e.target.value; } })
+            ]),
+            el("div", {}, [
+              el("label", { class: "muted" }, "Dietary Notes"),
+              el("input", { type: "text", placeholder: "Less spicy, no onion...", value: state.dietaryNotes, onInput: (e) => { state.dietaryNotes = e.target.value; } })
+            ])
+          ]),
+          el("button", {
+            type: "button", class: "btn btn-primary",
+            onClick: () => { state.lastPaymentError = ""; state.passengerScreen = "PAYMENT"; render(); }
+          }, `Proceed to Online Payment · ₹${total}`)
+        ]));
+      }
+
+      if (state.passengerScreen === "PAYMENT") {
+        wrap.appendChild(el("div", { class: "card", style: "max-width:520px; margin:0 auto; width:100%; display:grid; gap:14px;" }, [
+          el("div", { class: "row" }, [
+            el("div", {}, [
+              el("p", { class: "muted", style: "margin:0;" }, "Verified Online Checkout"),
+              el("h2", { class: "mono" }, `₹${total}`)
+            ]),
+            el("span", { class: "muted" }, state.payMethod)
+          ]),
+          el("div", { class: "grid-3" }, ["UPI", "CARD", "NETBANKING"].map((pm) => el("button", {
+            type: "button", class: `btn ${state.payMethod === pm ? "btn-primary" : "btn-outline"}`,
+            onClick: () => { state.payMethod = pm; render(); }
+          }, pm))),
+          el("label", { style: "display:flex; align-items:center; gap:8px; font-size:12px; cursor:pointer;" }, [
+            el("input", {
+              type: "checkbox", style: "width:auto;",
+              checked: state.simulatePayFail,
+              onChange: (e) => { state.simulatePayFail = e.target.checked; }
+            }),
+            "Simulate payment failure (verifies failed payment does NOT create an order)"
+          ]),
+          state.lastPaymentError && el("div", { style: "padding:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; color:#991b1b; font-size:12px;" }, [
+            el("strong", {}, "Payment Failed: "),
+            state.lastPaymentError,
+            el("div", { style: "margin-top:8px;" }, [
+              el("button", {
+                type: "button", class: "btn btn-danger btn-sm",
+                onClick: () => { state.simulatePayFail = false; completePayment(); }
+              }, "Retry Payment Now")
+            ])
+          ]),
+          el("button", {
+            type: "button", class: "btn btn-primary",
+            onClick: () => completePayment()
+          }, `Pay ₹${total} via ${state.payMethod}`)
+        ]));
+      }
+
+      function completePayment() {
+        if (state.simulatePayFail) {
+          state.paymentFailures += 1;
+          state.lastPaymentError = "Gateway authorization declined. Order was NOT confirmed.";
+          render();
+          return;
+        }
+        const newId = `ORD-2026-${Math.floor(1000 + Math.random() * 8999)}`;
+        const pickup = `MS-${Math.floor(1000 + Math.random() * 8999)}`;
+        const commAmt = Math.round((total * activeRest.commissionPercent) / 100);
+        const gwFee = Math.round(total * 0.02);
+        const payable = total - commAmt - gwFee;
+        state.orders.unshift({
+          id: newId,
+          pickupCode: pickup,
+          restaurantId: activeRest.id,
+          passenger: state.passengerName.trim() || "Guest Passenger",
+          phone: state.passengerPhone.trim() || "+91 98400 00000",
+          mode: state.orderMode,
+          guests: state.orderMode === "DINE_IN" ? state.dineInGuests : 0,
+          notes: [state.specialInstructions, state.dietaryNotes].filter(Boolean).join(" · "),
+          items: cartEntries.map((x) => ({ name: x.item.name, qty: x.q, price: x.item.price })),
+          subtotal, gst, fee, gross: total,
+          commissionPct: activeRest.commissionPercent,
+          commissionAmt: commAmt,
+          gatewayFee: gwFee,
+          payable,
+          paymentStatus: "PAID",
+          status: "NEW",
+          settlement: "PENDING",
+          dateRange: "TODAY"
+        });
+        state.qrCodes[0].orders += 1;
+        state.notifications.unshift({ target: "DRIVER", title: `New Order at ${activeRest.name}`, msg: `${newId} (${state.orderMode}) queued for Stop ${activeRest.stopOrder}.` });
+        state.auditLogs.unshift(`Paid Order ${newId} (₹${total}) placed for ${activeRest.name}`);
+        state.cart = {};
+        state.activeOrderId = newId;
+        state.passengerScreen = "TRACKING";
+        showToast(`Payment verified! Order ${newId} sent to ${activeRest.name}.`);
+        render();
+      }
+
+      if (state.passengerScreen === "TRACKING" || state.passengerScreen === "COLLECTION") {
+        const order = state.orders.find((o) => o.id === state.activeOrderId) || state.orders[0];
+        const rest = state.restaurants.find((r) => r.id === order.restaurantId);
+        const tel = getStopTelemetry(rest);
+        const steps = ["NEW", "ACCEPTED", "PREPARING", "READY", "COMPLETED"];
+        const idx = steps.indexOf(order.status);
+
+        if (state.passengerScreen === "TRACKING") {
+          wrap.appendChild(el("div", { class: "card" }, [
+            el("div", { class: "row" }, [
+              el("div", {}, [
+                el("p", { class: "muted mono", style: "margin:0;" }, `${order.id} · ${order.mode} · Payment ${order.paymentStatus}`),
+                el("h2", { style: "font-size:20px; margin-top:4px;" }, rest.name),
+                el("p", { class: "muted", style: "margin:2px 0 0;" }, rest.address)
+              ]),
+              el("button", {
+                type: "button", class: "btn btn-primary",
+                onClick: () => { state.passengerScreen = "COLLECTION"; render(); }
+              }, `Pickup Pass (${order.pickupCode})`)
+            ]),
+            el("div", { class: "stepper" }, steps.map((s, i) => el("div", { style: "text-align:center;" }, [
+              el("div", { class: `step-bar ${order.status === "REFUNDED" ? "fail" : i <= idx ? "on" : ""}` }),
+              el("span", { style: `font-size:11px; font-weight:600; color:${i <= idx ? "#0f172a" : "#94a3b8"};` }, s)
+            ]))),
+            el("div", { class: "grid-3" }, [
+              el("div", { class: "card", style: "background:#f8fafc;" }, [
+                el("p", { class: "muted", style: "margin:0;" }, "Bus Distance"),
+                el("strong", { class: "mono", style: "font-size:20px;" }, `${tel.dist} km`)
+              ]),
+              el("div", { class: "card", style: "background:#f8fafc;" }, [
+                el("p", { class: "muted", style: "margin:0;" }, "Live Arrival ETA"),
+                el("strong", { class: "mono", style: "font-size:20px; color:var(--accent);" }, `${tel.eta} mins`)
+              ]),
+              el("div", { class: "card", style: "background:#f8fafc;" }, [
+                el("p", { class: "muted", style: "margin:0;" }, "Restaurant Contact"),
+                el("strong", { class: "mono", style: "font-size:14px;" }, order.status === "COMPLETED" ? "Masked after pickup" : rest.phone)
+              ])
+            ])
+          ]));
+          wrap.appendChild(buildSvgRouteMap(rest.id));
+        } else {
+          wrap.appendChild(el("div", { class: "card", style: "max-width:440px; margin:0 auto; text-align:center; display:grid; gap:14px;" }, [
+            el("p", { class: "muted", style: "margin:0;" }, "Order Pickup & Dine-in Pass"),
+            el("h2", {}, rest.name),
+            el("div", { style: "background:#0f172a; color:#fff; border-radius:14px; padding:24px;" }, [
+              el("p", { class: "muted", style: "color:#94a3b8; margin:0;" }, "Show Code at Counter"),
+              el("p", { class: "mono", style: "font-size:34px; font-weight:700; color:#34d399; margin:8px 0;" }, order.pickupCode),
+              el("p", { class: "mono", style: "font-size:12px; color:#cbd5e1; margin:0;" }, `${order.id} · ${order.mode}`)
+            ]),
+            el("p", { style: "font-weight:600; margin:0;" }, `Kitchen Status: ${order.status}`),
+            el("button", {
+              type: "button", class: "btn btn-outline",
+              onClick: () => { state.passengerScreen = "TRACKING"; render(); }
+            }, "Back to Live Tracking")
+          ]));
+        }
+      }
+      return wrap;
+    }
+
+    // ---------- PORTAL 2: RESTAURANT PARTNER ----------
+    function renderRestaurant() {
+      const wrap = el("div", { style: "display:grid; gap:20px;" });
+      const rest = state.restaurants.find((r) => r.id === state.activeRestAdminId) || state.restaurants[0];
+      const restOrders = state.orders.filter((o) => o.restaurantId === rest.id);
+      const tel = getStopTelemetry(rest);
+      const veh = state.vehicles[0];
+
+      wrap.appendChild(el("div", { class: "card row" }, [
+        el("div", {}, [
+          el("p", { class: "muted", style: "margin:0;" }, `Restaurant Partner Console · ${rest.city} · Commission ${rest.commissionPercent}%`),
+          el("h1", { style: "font-size:22px; margin-top:2px;" }, rest.name)
+        ]),
+        el("div", { style: "display:flex; gap:8px; flex-wrap:wrap;" }, [
+          el("select", {
+            style: "width:auto;",
+            onChange: (e) => { state.activeRestAdminId = e.target.value; render(); }
+          }, state.restaurants.map((r) => el("option", { value: r.id, selected: r.id === rest.id }, r.name))),
+          el("button", {
+            type: "button", class: `btn ${rest.acceptingOrders ? "btn-primary" : "btn-danger"}`,
+            onClick: () => { rest.acceptingOrders = !rest.acceptingOrders; showToast(`${rest.name} acceptingOrders = ${rest.acceptingOrders}`); render(); }
+          }, rest.acceptingOrders ? "Accepting Orders: ON" : "Accepting Orders: OFF")
+        ])
+      ]));
+
+      wrap.appendChild(el("div", { class: "seg" }, [
+        ["ORDERS", `Orders (${restOrders.length})`],
+        ["BUS", "Upcoming Buses & Live Map"],
+        ["MENU", "Menu & Availability"],
+        ["FINANCE", "Sales & Settlements"],
+        ["PROFILE", "Staff & Profile"]
+      ].map(([k, lbl]) => el("button", {
+        type: "button", class: state.restaurantTab === k ? "active" : "",
+        onClick: () => { state.restaurantTab = k; render(); }
+      }, lbl))));
+
+      if (state.restaurantTab === "ORDERS") {
+        const filtered = restOrders.filter((o) =>
+          state.restOrderFilter === "ACTIVE" ? ["NEW", "ACCEPTED", "PREPARING", "READY"].includes(o.status) :
+          state.restOrderFilter === "COMPLETED" ? ["COMPLETED", "REFUNDED"].includes(o.status) : true
+        );
+        wrap.appendChild(el("div", { style: "display:flex; gap:8px;" }, ["ACTIVE", "COMPLETED", "ALL"].map((f) => el("button", {
+          type: "button", class: `btn btn-sm ${state.restOrderFilter === f ? "btn-dark" : "btn-outline"}`,
+          onClick: () => { state.restOrderFilter = f; render(); }
+        }, f))));
+
+        wrap.appendChild(el("div", { class: "grid-2" }, filtered.length === 0
+          ? el("div", { class: "card muted" }, "No orders in this filter.")
+          : filtered.map((o) => el("div", { class: "card", style: "display:grid; gap:10px;" }, [
+              el("div", { class: "row" }, [
+                el("div", {}, [
+                  el("p", { class: "muted mono", style: "margin:0;" }, `${o.id} · Code ${o.pickupCode} · ${o.mode}`),
+                  el("h3", { style: "font-size:16px; margin-top:2px;" }, o.passenger)
+                ]),
+                el("strong", { style: `font-size:12px; color:${o.status === "READY" || o.status === "COMPLETED" ? "var(--ok)" : o.status === "REFUNDED" ? "var(--err)" : "var(--warn)"};` }, o.status)
+              ]),
+              el("div", { style: "font-size:13px;" }, o.items.map((it) => el("div", {}, `${it.qty} × ${it.name} (₹${it.price * it.qty})`))),
+              o.notes && el("p", { class: "muted", style: "margin:0;" }, `Note: ${o.notes}`),
+              el("div", { class: "muted mono" }, `Bus ETA: ${tel.eta} mins (${tel.dist} km)`),
+              el("div", { style: "display:flex; gap:8px; flex-wrap:wrap;" }, [
+                o.status === "NEW" && el("button", { type: "button", class: "btn btn-primary btn-sm", onClick: () => { o.status = "ACCEPTED"; showToast(`${o.id} accepted`); render(); } }, "Accept Order"),
+                o.status === "NEW" && el("button", { type: "button", class: "btn btn-danger btn-sm", onClick: () => { o.status = "REFUNDED"; o.paymentStatus = "REFUNDED"; showToast(`${o.id} rejected & refunded.`); render(); } }, "Reject & Refund"),
+                o.status === "ACCEPTED" && el("button", { type: "button", class: "btn btn-amber btn-sm", onClick: () => { o.status = "PREPARING"; showToast(`${o.id} preparing`); render(); } }, "Start Preparing"),
+                o.status === "PREPARING" && el("button", { type: "button", class: "btn btn-primary btn-sm", onClick: () => { o.status = "READY"; showToast(`${o.id} marked READY`); render(); } }, "Mark Food Ready"),
+                o.status === "READY" && el("button", { type: "button", class: "btn btn-dark btn-sm", onClick: () => { o.status = "COMPLETED"; showToast(`Pickup ${o.pickupCode} verified!`); render(); } }, `Verify ${o.pickupCode} & Complete`)
+              ])
+            ]))
+        ));
+      }
+
+      if (state.restaurantTab === "BUS") {
+        wrap.appendChild(buildSvgRouteMap(rest.id));
+        wrap.appendChild(el("div", { class: "card row" }, [
+          el("div", {}, [
+            el("p", { class: "muted", style: "margin:0;" }, `Approaching Coach (${state.trip.status.replace(/_/g, " ")})`),
+            el("h3", { class: "mono", style: "margin-top:2px;" }, `${veh.reg} · ${veh.route}`)
+          ]),
+          el("div", { style: "display:flex; gap:24px;" }, [
+            el("div", {}, [el("p", { class: "muted", style: "margin:0;" }, "Distance"), el("strong", { class: "mono" }, `${tel.dist} km`)]),
+            el("div", {}, [el("p", { class: "muted", style: "margin:0;" }, "Live ETA"), el("strong", { class: "mono", style: "color:var(--accent);" }, `${tel.eta} mins`)]),
+            el("div", {}, [el("p", { class: "muted", style: "margin:0;" }, "Bus Orders"), el("strong", { class: "mono" }, restOrders.filter((o) => o.status !== "COMPLETED" && o.status !== "REFUNDED").length)])
+          ])
+        ]));
+      }
+
+      if (state.restaurantTab === "MENU") {
+        const items = state.menuItems.filter((m) => m.restaurantId === rest.id);
+        wrap.appendChild(el("div", { class: "grid-2" }, [
+          el("div", { style: "display:grid; gap:10px;" }, items.map((m) => el("div", { class: "card row" }, [
+            el("div", {}, [
+              el("strong", {}, m.name),
+              el("p", { class: "muted mono", style: "margin:4px 0 0;" }, `₹${m.price} · Prep ${m.prep}m · ${m.category} · ${m.veg ? "Veg" : "Non-Veg"}`)
+            ]),
+            el("div", { style: "display:flex; gap:6px;" }, [
+              el("button", {
+                type: "button", class: `btn btn-sm ${m.available ? "btn-primary" : "btn-outline"}`,
+                onClick: () => { m.available = !m.available; render(); }
+              }, m.available ? "Available" : "Sold Out"),
+              el("button", {
+                type: "button", class: "btn btn-danger btn-sm",
+                onClick: () => { state.menuItems = state.menuItems.filter((x) => x.id !== m.id); render(); }
+              }, "Delete")
+            ])
+          ]))),
+          el("div", { class: "card", style: "display:grid; gap:10px; height:fit-content;" }, [
+            el("h3", { style: "font-size:15px;" }, "Add Menu Item"),
+            el("input", { type: "text", placeholder: "Dish name", value: state.newMenuItem.name, onInput: (e) => { state.newMenuItem.name = e.target.value; } }),
+            el("input", { type: "text", placeholder: "Category", value: state.newMenuItem.category, onInput: (e) => { state.newMenuItem.category = e.target.value; } }),
+            el("div", { class: "grid-2" }, [
+              el("input", { type: "number", placeholder: "Price (INR)", value: state.newMenuItem.price, onInput: (e) => { state.newMenuItem.price = Number(e.target.value || 100); } }),
+              el("input", { type: "number", placeholder: "Prep mins", value: state.newMenuItem.prep, onInput: (e) => { state.newMenuItem.prep = Number(e.target.value || 10); } })
+            ]),
+            el("button", {
+              type: "button", class: "btn btn-primary",
+              onClick: () => {
+                if (!state.newMenuItem.name.trim()) { showToast("Enter dish name"); return; }
+                state.menuItems.push({
+                  id: `m-${Date.now()}`,
+                  restaurantId: rest.id,
+                  category: state.newMenuItem.category || "Specials",
+                  name: state.newMenuItem.name.trim(),
+                  price: state.newMenuItem.price,
+                  prep: state.newMenuItem.prep,
+                  veg: state.newMenuItem.veg,
+                  available: true
+                });
+                state.newMenuItem.name = "";
+                showToast("Menu item added");
+                render();
+              }
+            }, "Add Dish to Menu")
+          ])
+        ]));
+      }
+
+      if (state.restaurantTab === "FINANCE") {
+        wrap.appendChild(el("div", { class: "card", style: "overflow-x:auto;" }, [
+          el("table", {}, [
+            el("thead", {}, el("tr", {}, ["Order ID", "Status", "Gross", "Commission", "Gateway Fee", "Net Payable", "Settlement"].map((h) => el("th", {}, h)))),
+            el("tbody", {}, restOrders.map((o) => el("tr", {}, [
+              el("td", { class: "mono" }, o.id),
+              el("td", {}, o.status),
+              el("td", { class: "num" }, `₹${o.gross}`),
+              el("td", { class: "num" }, `-₹${o.commissionAmt} (${o.commissionPct}%)`),
+              el("td", { class: "num" }, `-₹${o.gatewayFee || 0}`),
+              el("td", { class: "num" }, `₹${o.payable}`),
+              el("td", {}, o.settlement)
+            ])))
+          ])
+        ]));
+      }
+
+      if (state.restaurantTab === "PROFILE") {
+        wrap.appendChild(el("div", { class: "grid-2" }, [
+          el("div", { class: "card", style: "display:grid; gap:8px; font-size:13px;" }, [
+            el("h3", { style: "font-size:16px;" }, "Compliance & Bank Profile"),
+            el("div", {}, `Owner: ${rest.owner}`),
+            el("div", {}, `Address: ${rest.address}`),
+            el("div", { class: "mono" }, `GSTIN: ${rest.gst}`),
+            el("div", { class: "mono" }, `FSSAI: ${rest.fssai}`),
+            el("div", { class: "mono" }, `Bank: ${rest.bank}`),
+            el("div", {}, `Operating Hours: ${rest.hours}`)
+          ]),
+          el("div", { class: "card", style: "display:grid; gap:10px;" }, [
+            el("h3", { style: "font-size:16px;" }, `Staff (${rest.staff.length})`),
+            rest.staff.map((st) => el("div", { class: "row", style: "padding:6px 0; border-bottom:1px solid #f1f5f9; font-size:12px;" }, [
+              el("strong", {}, st.name),
+              el("span", { class: "mono muted" }, `${st.phone} · ${st.role}`)
+            ])),
+            el("div", { class: "grid-2" }, [
+              el("input", { type: "text", placeholder: "Staff name", value: state.newStaffForm.name, onInput: (e) => { state.newStaffForm.name = e.target.value; } }),
+              el("input", { type: "text", placeholder: "Phone", value: state.newStaffForm.phone, onInput: (e) => { state.newStaffForm.phone = e.target.value; } })
+            ]),
+            el("button", {
+              type: "button", class: "btn btn-dark btn-sm",
+              onClick: () => {
+                if (!state.newStaffForm.name.trim()) return;
+                rest.staff.push({ name: state.newStaffForm.name.trim(), phone: state.newStaffForm.phone || "+91 98400 00000", role: "KITCHEN_STAFF" });
+                state.newStaffForm.name = "";
+                state.newStaffForm.phone = "";
+                showToast("Staff member added");
+                render();
+              }
+            }, "Add Kitchen Staff")
+          ])
+        ]));
+      }
+      return wrap;
+    }
+
+    // ---------- PORTAL 3: DRIVER & CONDUCTOR ----------
+    function toggleAutoDrive() {
+      state.autoDrive = !state.autoDrive;
+      if (state.autoDrive) {
+        if (state.trip.status !== "IN_PROGRESS") {
+          state.trip.status = "IN_PROGRESS";
+        }
+        autoDriveTimer = setInterval(() => {
+          if (!state.autoDrive || state.trip.status !== "IN_PROGRESS") {
+            clearInterval(autoDriveTimer);
+            autoDriveTimer = null;
+            return;
+          }
+          if (state.trip.progress >= 1) {
+            state.autoDrive = false;
+            state.trip.status = "COMPLETED";
+            clearInterval(autoDriveTimer);
+            autoDriveTimer = null;
+            showToast("Bus reached destination! Trip completed.");
+            render();
+            return;
+          }
+          const nextProg = Math.min(1, Number((state.trip.progress + 0.03).toFixed(2)));
+          if (state.offlineMode) {
+            state.offlineBuffer.push(nextProg);
+          } else {
+            state.trip.progress = nextProg;
+          }
+          render();
+        }, 1200);
+        showToast("Auto-Drive GPS streaming started");
+      } else {
+        clearInterval(autoDriveTimer);
+        autoDriveTimer = null;
+        showToast("Auto-Drive GPS paused");
+      }
+      render();
+    }
+
+    function renderDriver() {
+      const wrap = el("div", { style: "display:grid; gap:20px;" });
+      const veh = state.vehicles[0];
+      const approved = getApprovedStops();
+      const nextStop = approved[0];
+      const nextTel = nextStop ? getStopTelemetry(nextStop) : { dist: 0, eta: 0 };
+      const allActiveOrders = state.orders.filter((o) => o.status !== "REFUNDED" && o.status !== "REJECTED");
+
+      wrap.appendChild(el("div", { class: "card row" }, [
+        el("div", {}, [
+          el("p", { class: "muted", style: "margin:0;" }, `${veh.company} · Driver ${veh.driver} · Conductor ${veh.conductor}`),
+          el("h1", { style: "font-size:22px; margin-top:2px;" }, `${veh.reg} · ${veh.route}`)
+        ]),
+        el("div", { style: "display:flex; gap:8px; flex-wrap:wrap;" }, [
+          state.trip.status !== "IN_PROGRESS"
+            ? el("button", {
+                type: "button", class: "btn btn-primary",
+                onClick: () => {
+                  state.trip.status = "IN_PROGRESS";
+                  if (state.trip.progress >= 1) state.trip.progress = 0.02;
+                  state.auditLogs.unshift(`Driver ${veh.driver} started trip ${state.trip.id}`);
+                  showToast("Trip started! GPS tracking live.");
+                  render();
+                }
+              }, "Start Trip & Enable GPS")
+            : el("button", {
+                type: "button", class: "btn btn-danger",
+                onClick: () => {
+                  state.autoDrive = false;
+                  clearInterval(autoDriveTimer);
+                  autoDriveTimer = null;
+                  state.trip.status = "COMPLETED";
+                  state.tripHistory.unshift({
+                    id: state.trip.id,
+                    vehicle: veh.reg,
+                    route: veh.route,
+                    date: "Just now",
+                    ordersCount: allActiveOrders.length
+                  });
+                  state.auditLogs.unshift(`Driver ${veh.driver} ended trip ${state.trip.id}; GPS stopped`);
+                  showToast("Trip completed & GPS stopped.");
+                  render();
+                }
+              }, "End Trip & Stop GPS")
+        ])
+      ]));
+
+      wrap.appendChild(el("div", { class: "grid-4" }, [
+        el("div", { class: "card" }, [
+          el("p", { class: "muted", style: "margin:0;" }, "Next Partner Stop"),
+          el("strong", { style: "font-size:15px;" }, nextStop ? nextStop.name : "No stops")
+        ]),
+        el("div", { class: "card" }, [
+          el("p", { class: "muted", style: "margin:0;" }, "Distance & ETA"),
+          el("strong", { class: "mono", style: "font-size:18px; color:var(--accent);" }, `${nextTel.dist} km · ${nextTel.eta}m`)
+        ]),
+        el("div", { class: "card" }, [
+          el("p", { class: "muted", style: "margin:0;" }, "Passenger Pre-Orders"),
+          el("strong", { class: "mono", style: "font-size:20px;" }, allActiveOrders.length)
+        ]),
+        el("div", { class: "card" }, [
+          el("p", { class: "muted", style: "margin:0;" }, "GPS Link Status"),
+          el("strong", { style: `font-size:14px; color:${state.trip.status === "IN_PROGRESS" ? (state.offlineMode ? "var(--warn)" : "var(--ok)") : "var(--muted)"};` },
+            state.trip.status === "IN_PROGRESS"
+              ? (state.offlineMode ? `Offline (${state.offlineBuffer.length} queued)` : "Broadcasting Live")
+              : "Idle (Trip Ended)"
+          )
+        ])
+      ]));
+
+      wrap.appendChild(el("div", { class: "seg" }, [
+        ["GPS", "Driver Live GPS & Stops"],
+        ["CONDUCTOR", `Conductor Order Desk (${allActiveOrders.length})`],
+        ["VEHICLE", `Vehicle & Trip History (${state.tripHistory.length})`],
+        ["ALERTS", `Notifications (${state.notifications.length})`]
+      ].map(([k, lbl]) => el("button", {
+        type: "button", class: state.driverTab === k ? "active" : "",
+        onClick: () => { state.driverTab = k; render(); }
+      }, lbl))));
+
+      if (state.driverTab === "GPS") {
+        if (state.trip.status === "IN_PROGRESS") {
+          wrap.appendChild(el("div", { class: "card", style: "display:grid; gap:14px;" }, [
+            el("div", { class: "row" }, [
+              el("div", {}, [
+                el("h3", { style: "font-size:15px;" }, "Live GPS Telemetry Controls"),
+                el("p", { class: "muted", style: "margin:2px 0 0;" }, "Move the slider or use Auto-Drive to stream coordinates to Restaurants & Passengers.")
+              ]),
+              el("div", { style: "display:flex; gap:8px; flex-wrap:wrap;" }, [
+                el("button", {
+                  type: "button", class: `btn btn-sm ${state.autoDrive ? "btn-amber" : "btn-primary"}`,
+                  onClick: () => toggleAutoDrive()
+                }, state.autoDrive ? "Pause Auto-Drive" : "Auto-Drive Live GPS"),
+                el("button", {
+                  type: "button", class: `btn btn-sm ${state.offlineMode ? "btn-amber" : "btn-outline"}`,
+                  onClick: () => {
+                    if (state.offlineMode) {
+                      state.offlineMode = false;
+                      if (state.offlineBuffer.length > 0) {
+                        state.trip.progress = state.offlineBuffer[state.offlineBuffer.length - 1];
+                        showToast(`Reconnected! Synced ${state.offlineBuffer.length} buffered GPS updates.`);
+                        state.offlineBuffer = [];
+                      }
+                    } else {
+                      state.offlineMode = true;
+                      showToast("Offline mode enabled — GPS points will buffer locally");
+                    }
+                    render();
+                  }
+                }, state.offlineMode ? "Reconnect & Sync Buffer" : "Simulate Offline Drop")
+              ])
+            ]),
+            el("div", { class: "grid-2" }, [
+              el("div", {}, [
+                el("label", { class: "muted" }, `Route Progress (${Math.round(state.trip.progress * 100)}%)`),
+                el("input", {
+                  type: "range", min: 0, max: 100, value: Math.round(state.trip.progress * 100),
+                  style: "padding:0; margin-top:8px;",
+                  onInput: (e) => {
+                    const val = Number(e.target.value) / 100;
+                    if (state.offlineMode) { state.offlineBuffer.push(val); }
+                    else { state.trip.progress = val; }
+                    render();
+                  }
+                })
+              ]),
+              el("div", { class: "row" }, [
+                el("div", { style: "flex:1;" }, [
+                  el("label", { class: "muted" }, "Speed (km/h)"),
+                  el("input", { type: "number", min: 20, max: 110, value: state.trip.speedKmh, onInput: (e) => { state.trip.speedKmh = Number(e.target.value || 60); } })
+                ]),
+                el("button", {
+                  type: "button", class: "btn btn-dark", style: "margin-top:18px;",
+                  onClick: () => {
+                    const nextP = Math.min(1, Number((state.trip.progress + 0.08).toFixed(2)));
+                    if (state.offlineMode) { state.offlineBuffer.push(nextP); showToast("GPS queued offline"); }
+                    else { state.trip.progress = nextP; }
+                    render();
+                  }
+                }, "Advance +8% GPS")
+              ])
+            ])
+          ]));
+        } else {
+          wrap.appendChild(el("div", { class: "card row" }, [
+            el("span", { class: "muted" }, "GPS tracking is paused because the trip is not IN PROGRESS."),
+            el("button", {
+              type: "button", class: "btn btn-primary btn-sm",
+              onClick: () => { state.trip.status = "IN_PROGRESS"; state.trip.progress = 0.04; render(); }
+            }, "Start New Trip")
+          ]));
+        }
+
+        wrap.appendChild(buildSvgRouteMap());
+
+        wrap.appendChild(el("div", { class: "grid-3" }, approved.map((r) => {
+          const tel = getStopTelemetry(r);
+          const stopOrders = allActiveOrders.filter((o) => o.restaurantId === r.id);
+          const readyOrders = stopOrders.filter((o) => o.status === "READY");
+          return el("div", { class: "card", style: "display:grid; gap:8px;" }, [
+            el("p", { class: "muted", style: "margin:0;" }, `Stop ${r.stopOrder} · ${r.window}`),
+            el("h3", { style: "font-size:16px;" }, r.name),
+            el("div", { class: "row" }, [
+              el("span", { class: "mono" }, `${tel.dist} km`),
+              el("strong", { class: "mono", style: "color:var(--accent);" }, `ETA ${tel.eta} mins`)
+            ]),
+            el("div", { class: "hr", style: "margin:6px 0;" }),
+            el("p", { class: "muted", style: "margin:0;" },
+              `Orders: ${stopOrders.length} (Dine-in ${stopOrders.filter((o)=>o.mode==="DINE_IN").length} · Takeaway ${stopOrders.filter((o)=>o.mode==="TAKEAWAY").length})`
+            ),
+            el("p", { style: "font-size:12px; font-weight:600; color:var(--ok); margin:0;" }, `Ready for Pickup: ${readyOrders.length}`),
+            readyOrders.map((o) =>
+              el("button", {
+                type: "button", class: "btn btn-primary btn-sm",
+                onClick: () => { o.status = "COMPLETED"; showToast(`Confirmed collection for ${o.id}`); render(); }
+              }, `Confirm Collection (${o.pickupCode})`)
+            )
+          ]);
+        })));
+      }
+
+      if (state.driverTab === "CONDUCTOR") {
+        wrap.appendChild(el("div", { class: "card", style: "display:grid; gap:12px;" }, [
+          el("div", {}, [
+            el("h3", { style: "font-size:16px;" }, "Conductor Passenger Order & Collection Desk"),
+            el("p", { class: "muted", style: "margin:2px 0 0;" }, "Assist passengers with Dine-in / Takeaway readiness and confirm pickup once food is READY.")
+          ]),
+          allActiveOrders.length === 0
+            ? el("p", { class: "muted" }, "No passenger pre-orders on this vehicle.")
+            : allActiveOrders.map((o) => {
+                const rest = state.restaurants.find((r) => r.id === o.restaurantId);
+                return el("div", { class: "row", style: "padding:12px; border:1px solid var(--border); border-radius:10px;" }, [
+                  el("div", {}, [
+                    el("p", { class: "muted mono", style: "margin:0;" }, `${o.id} · Stop ${rest?.stopOrder || 1}: ${rest?.name || ""} · ${o.mode}`),
+                    el("strong", { style: "font-size:14px;" }, `${o.passenger} · Pickup Code ${o.pickupCode}`),
+                    el("p", { class: "muted", style: "margin:2px 0 0;" }, o.items.map((i) => `${i.qty}× ${i.name}`).join(", "))
+                  ]),
+                  el("div", { style: "display:flex; align-items:center; gap:10px;" }, [
+                    el("span", { style: `font-size:12px; font-weight:700; color:${o.status === "READY" || o.status === "COMPLETED" ? "var(--ok)" : "var(--warn)"};` }, o.status),
+                    o.status === "READY" && el("button", {
+                      type: "button", class: "btn btn-primary btn-sm",
+                      onClick: () => { o.status = "COMPLETED"; showToast(`Conductor confirmed ${o.id}`); render(); }
+                    }, "Confirm Collection")
+                  ])
+                ]);
+              })
+        ]));
+      }
+
+      if (state.driverTab === "VEHICLE") {
+        wrap.appendChild(el("div", { class: "grid-2" }, [
+          el("div", { class: "card", style: "display:grid; gap:8px; font-size:13px;" }, [
+            el("h3", { style: "font-size:16px;" }, "Assigned Vehicle & Route"),
+            el("div", { class: "mono" }, `Registration: ${veh.reg}`),
+            el("div", {}, `Operator: ${veh.company}`),
+            el("div", {}, `Type & Capacity: ${veh.type} · ${veh.seats} seats`),
+            el("div", {}, `Route: ${veh.route}`),
+            el("div", {}, `Driver: ${veh.driver} · Conductor: ${veh.conductor}`)
+          ]),
+          el("div", { class: "card", style: "display:grid; gap:8px;" }, [
+            el("h3", { style: "font-size:16px;" }, "Trip History"),
+            state.tripHistory.map((th) => el("div", { class: "row", style: "padding:8px 0; border-bottom:1px solid #f1f5f9; font-size:12px;" }, [
+              el("strong", { class: "mono" }, `${th.id} · ${th.vehicle}`),
+              el("span", { class: "muted" }, `${th.date} · ${th.ordersCount} orders`)
+            ]))
+          ])
+        ]));
+      }
+
+      if (state.driverTab === "ALERTS") {
+        wrap.appendChild(el("div", { class: "card", style: "display:grid; gap:10px;" }, [
+          el("h3", { style: "font-size:16px;" }, "Trip & Stop Notifications"),
+          state.notifications.map((n) => el("div", { style: "padding:10px; background:#f8fafc; border:1px solid var(--border); border-radius:8px; font-size:12px;" }, [
+            el("strong", {}, n.title),
+            el("p", { class: "muted", style: "margin:4px 0 0;" }, n.msg)
+          ]))
+        ]));
+      }
+      return wrap;
+    }
+
+    // ---------- PORTAL 4: SUPER ADMIN ----------
+    function renderAdmin() {
+      const wrap = el("div", { style: "display:grid; gap:20px;" });
+      const filteredOrders = state.orders.filter((o) =>
+        state.adminRange === "ALL" ? true : o.dateRange === state.adminRange
+      );
+      const paid = filteredOrders.filter((o) => o.paymentStatus === "PAID" && o.status !== "REFUNDED");
+      const gross = paid.reduce((s, o) => s + o.gross, 0);
+      const comm = paid.reduce((s, o) => s + o.commissionAmt, 0);
+      const pendingPayout = paid.filter((o) => o.settlement === "PENDING").reduce((s, o) => s + o.payable, 0);
+
+      wrap.appendChild(el("div", { class: "row" }, [
+        el("div", {}, [
+          el("p", { class: "muted", style: "color:var(--accent); font-weight:600; margin:0;" }, "Super Admin Control Center"),
+          el("h1", { style: "font-size:22px; margin-top:2px;" }, "Operations, Partnerships, QR & Settlements")
+        ]),
+        el("div", { style: "display:flex; gap:8px; flex-wrap:wrap; align-items:center;" }, [
+          el("div", { class: "seg" }, [
+            ["ALL", "All Time"],
+            ["TODAY", "Today"],
+            ["YESTERDAY", "Yesterday"]
+          ].map(([rk, rl]) => el("button", {
+            type: "button", class: state.adminRange === rk ? "active" : "",
+            onClick: () => { state.adminRange = rk; render(); }
+          }, rl))),
+          el("button", {
+            type: "button", class: "btn btn-dark",
+            onClick: () => {
+              const csv = [
+                "OrderID,Restaurant,Mode,Status,Gross,Commission,Payable,Settlement",
+                ...filteredOrders.map((o) => `${o.id},"${state.restaurants.find((r)=>r.id===o.restaurantId)?.name || ""}",${o.mode},${o.status},${o.gross},${o.commissionAmt},${o.payable},${o.settlement}`)
+              ].join("\n");
+              const blob = new Blob([csv], { type: "text/csv" });
+              const a = document.createElement("a");
+              a.href = URL.createObjectURL(blob);
+              a.download = "milestop-admin-report.csv";
+              a.click();
+              showToast("CSV report downloaded");
+            }
+          }, "Export CSV")
+        ])
+      ]));
+
+      wrap.appendChild(el("div", { class: "grid-kpi" }, [
+        ["Restaurants", state.restaurants.length],
+        ["Active Rest.", state.restaurants.filter((r) => r.status === "APPROVED").length],
+        ["Pending Appr.", state.restaurants.filter((r) => r.status === "PENDING").length],
+        ["Companies", state.companies.length],
+        ["Vehicles", state.vehicles.length],
+        ["Active Trips", state.trip.status === "IN_PROGRESS" ? 1 : 0],
+        ["Total Orders", filteredOrders.length],
+        ["Completed", filteredOrders.filter((o) => o.status === "COMPLETED").length],
+        ["Gross Value", `₹${gross}`],
+        ["Commission", `₹${comm}`],
+        ["Pending Payout", `₹${pendingPayout}`],
+        ["Pay Failures", state.paymentFailures]
+      ].map(([k, v]) => el("div", { class: "card", style: "padding:14px;" }, [
+        el("p", { class: "muted", style: "margin:0; font-size:11px;" }, k),
+        el("strong", { class: "mono", style: "font-size:18px;" }, v)
+      ]))));
+
+      wrap.appendChild(el("div", { class: "seg" }, [
+        ["OVERVIEW", "Restaurants & Approvals"],
+        ["PARTNERSHIPS", "Bus–Restaurant Partnerships"],
+        ["QR", "QR Code Management"],
+        ["SETTLEMENTS", "Orders & Settlements"],
+        ["AUDIT", "Audit Log"]
+      ].map(([k, lbl]) => el("button", {
+        type: "button", class: state.adminTab === k ? "active" : "",
+        onClick: () => { state.adminTab = k; render(); }
+      }, lbl))));
+
+      if (state.adminTab === "OVERVIEW") {
+        wrap.appendChild(el("div", { class: "grid-2" }, [
+          el("div", { class: "card", style: "display:grid; gap:12px;" }, [
+            el("h3", { style: "font-size:16px;" }, "Registered Highway Restaurants"),
+            state.restaurants.map((r) => el("div", { class: "row", style: "padding-bottom:10px; border-bottom:1px solid #f1f5f9;" }, [
+              el("div", {}, [
+                el("strong", {}, r.name),
+                el("p", { class: "muted", style: "margin:2px 0 0;" }, `${r.city} · Stop ${r.stopOrder} · GST ${r.gst}`)
+              ]),
+              el("div", { style: "display:flex; gap:6px; align-items:center;" }, [
+                el("input", {
+                  type: "number", min: 0, max: 30, value: r.commissionPercent, style: "width:60px; padding:5px 8px; font-size:12px;",
+                  title: "Commission %",
+                  onChange: (e) => { r.commissionPercent = Number(e.target.value || 5); showToast(`${r.name} commission set to ${r.commissionPercent}%`); render(); }
+                }),
+                el("span", { style: `font-size:11px; font-weight:700; color:${r.status === "APPROVED" ? "var(--ok)" : "var(--warn)"};` }, r.status),
+                r.status !== "APPROVED"
+                  ? el("button", { type: "button", class: "btn btn-primary btn-sm", onClick: () => { r.status = "APPROVED"; r.acceptingOrders = true; state.auditLogs.unshift(`Approved restaurant ${r.name}`); showToast(`Approved ${r.name}`); render(); } }, "Approve")
+                  : el("button", { type: "button", class: "btn btn-danger btn-sm", onClick: () => { r.status = "SUSPENDED"; r.acceptingOrders = false; state.auditLogs.unshift(`Suspended restaurant ${r.name}`); render(); } }, "Suspend")
+              ])
+            ]))
+          ]),
+          el("div", { class: "card", style: "display:grid; gap:10px; height:fit-content;" }, [
+            el("h3", { style: "font-size:16px;" }, "Register New Highway Restaurant"),
+            el("input", { type: "text", placeholder: "Restaurant name", value: state.newRestForm.name, onInput: (e) => { state.newRestForm.name = e.target.value; } }),
+            el("input", { type: "text", placeholder: "Owner name", value: state.newRestForm.owner, onInput: (e) => { state.newRestForm.owner = e.target.value; } }),
+            el("div", { class: "grid-2" }, [
+              el("input", { type: "text", placeholder: "City / Toll Plaza", value: state.newRestForm.city, onInput: (e) => { state.newRestForm.city = e.target.value; } }),
+              el("input", { type: "number", placeholder: "Commission %", value: state.newRestForm.commission, onInput: (e) => { state.newRestForm.commission = Number(e.target.value || 5); } })
+            ]),
+            el("button", {
+              type: "button", class: "btn btn-primary",
+              onClick: () => {
+                if (!state.newRestForm.name.trim()) { showToast("Enter restaurant name"); return; }
+                const id = `rest-${Date.now()}`;
+                state.restaurants.push({
+                  id,
+                  name: state.newRestForm.name.trim(),
+                  owner: state.newRestForm.owner.trim() || "Partner Owner",
+                  city: state.newRestForm.city.trim() || "Dindigul",
+                  address: `Highway Plaza, ${state.newRestForm.city || "NH-44"}`,
+                  phone: "+91 98400 55667",
+                  gst: "33AAACM1234A1Z5",
+                  fssai: "12426000000999",
+                  bank: "HDFC0001000 · •••• 1001",
+                  hours: "00:00 – 23:59",
+                  lat: 10.3673,
+                  lng: 77.9803,
+                  commissionPercent: state.newRestForm.commission,
+                  status: "APPROVED",
+                  acceptingOrders: true,
+                  stopOrder: state.restaurants.length + 1,
+                  window: "02:00 – 02:20",
+                  cuisine: "Highway Express Meals",
+                  staff: []
+                });
+                state.menuItems.push({ id: `m-${Date.now()}`, restaurantId: id, category: "Meals", name: "Highway Express Thali", price: 210, prep: 10, veg: true, available: true });
+                state.newRestForm.name = "";
+                state.newRestForm.owner = "";
+                state.newRestForm.city = "";
+                showToast("Restaurant created & approved");
+                render();
+              }
+            }, "Create & Approve Restaurant")
+          ])
+        ]));
+      }
+
+      if (state.adminTab === "PARTNERSHIPS") {
+        wrap.appendChild(el("div", { class: "card", style: "display:grid; gap:12px;" }, [
+          el("h3", { style: "font-size:16px;" }, "Bus–Route–Restaurant Partnerships (TN 45 AB 1234)"),
+          state.partnerships.map((p) => {
+            const r = state.restaurants.find((x) => x.id === p.restaurantId);
+            return el("div", { class: "row", style: "padding-bottom:10px; border-bottom:1px solid #f1f5f9;" }, [
+              el("div", {}, [
+                el("strong", { class: "mono" }, `Stop ${p.stopOrder}: ${r?.name || p.restaurantId}`),
+                el("p", { class: "muted", style: "margin:2px 0 0;" }, `Arrival Window: ${p.window} · Restaurant Status: ${r?.status}`)
+              ]),
+              el("div", { style: "display:flex; gap:8px; align-items:center;" }, [
+                el("span", { style: `font-size:12px; font-weight:700; color:${p.status === "APPROVED" ? "var(--ok)" : "var(--warn)"};` }, p.status),
+                el("button", {
+                  type: "button", class: "btn btn-outline btn-sm",
+                  onClick: () => {
+                    p.status = p.status === "APPROVED" ? "INACTIVE" : "APPROVED";
+                    if (p.status === "APPROVED" && r && r.status !== "APPROVED") { r.status = "APPROVED"; r.acceptingOrders = true; }
+                    state.auditLogs.unshift(`Partnership ${r?.name} set to ${p.status}`);
+                    render();
+                  }
+                }, p.status === "APPROVED" ? "Deactivate" : "Approve Stop")
+              ])
+            ]);
+          })
+        ]));
+      }
+
+      if (state.adminTab === "QR") {
+        const q = state.qrCodes[0];
+        wrap.appendChild(el("div", { class: "card row" }, [
+          el("div", {}, [
+            el("h3", { class: "mono" }, q.vehicle),
+            el("p", { class: "muted mono", style: "margin:4px 0 0;" }, `Signed Token: ${q.token}`),
+            el("p", { class: "muted", style: "margin:4px 0 0;" }, `Scans: ${q.scans} · Orders: ${q.orders} · Status: ${q.active ? "ACTIVE" : "DISABLED"}`)
+          ]),
+          el("div", { style: "display:flex; gap:8px; flex-wrap:wrap;" }, [
+            el("button", {
+              type: "button", class: "btn btn-outline btn-sm",
+              onClick: () => { q.token = `MSQR_TN45AB1234_${Math.random().toString(16).slice(2,6).toUpperCase()}`; showToast("QR token regenerated"); render(); }
+            }, "Regenerate Token"),
+            el("button", {
+              type: "button", class: `btn btn-sm ${q.active ? "btn-danger" : "btn-primary"}`,
+              onClick: () => { q.active = !q.active; showToast(`QR ${q.active ? "activated" : "deactivated"}`); render(); }
+            }, q.active ? "Deactivate QR" : "Activate QR")
+          ])
+        ]));
+      }
+
+      if (state.adminTab === "SETTLEMENTS") {
+        wrap.appendChild(el("div", { class: "card", style: "overflow-x:auto;" }, [
+          el("table", {}, [
+            el("thead", {}, el("tr", {}, ["Order", "Restaurant", "Status", "Gross", "Commission", "Payable", "Settlement"].map((h) => el("th", {}, h)))),
+            el("tbody", {}, filteredOrders.map((o) => el("tr", {}, [
+              el("td", { class: "mono" }, o.id),
+              el("td", {}, state.restaurants.find((r) => r.id === o.restaurantId)?.name || ""),
+              el("td", {}, o.status),
+              el("td", { class: "num" }, `₹${o.gross}`),
+              el("td", { class: "num" }, `₹${o.commissionAmt}`),
+              el("td", { class: "num" }, `₹${o.payable}`),
+              el("td", {}, o.settlement === "SETTLED"
+                ? el("span", { style: "color:var(--ok); font-weight:700;" }, "SETTLED")
+                : o.paymentStatus === "PAID" && o.status !== "REFUNDED"
+                  ? el("button", { type: "button", class: "btn btn-primary btn-sm", onClick: () => { o.settlement = "SETTLED"; state.auditLogs.unshift(`Settled ₹${o.payable} for ${o.id}`); showToast(`Settled ₹${o.payable}`); render(); } }, "Settle Payout")
+                  : el("span", { class: "muted" }, o.status)
+              )
+            ])))
+          ])
+        ]));
+      }
+
+      if (state.adminTab === "AUDIT") {
+        wrap.appendChild(el("div", { class: "card", style: "display:grid; gap:8px;" }, [
+          el("h3", { style: "font-size:16px;" }, "Platform Audit Trail"),
+          state.auditLogs.map((msg) => el("div", { style: "padding:10px; background:#f8fafc; border:1px solid var(--border); border-radius:8px; font-size:12px;" }, msg))
+        ]));
+      }
+      return wrap;
+    }
+
+    function renderHeader() {
+      const nav = document.getElementById("portal-nav");
+      nav.replaceChildren();
+      [
+        ["PASSENGER", "Passenger QR"],
+        ["RESTAURANT", "Restaurant App"],
+        ["DRIVER", "Driver & Crew"],
+        ["ADMIN", "Super Admin"]
+      ].forEach(([key, label]) => {
+        nav.appendChild(
+          el("button", {
+            type: "button",
+            class: `nav-btn ${state.portal === key ? "active" : ""}`,
+            onClick: () => { state.portal = key; render(); }
+          }, label)
+        );
+      });
+    }
+
+    function render() {
+      renderHeader();
+      const root = document.getElementById("app-root");
+      root.replaceChildren(
+        state.portal === "PASSENGER" ? renderPassenger() :
+        state.portal === "RESTAURANT" ? renderRestaurant() :
+        state.portal === "DRIVER" ? renderDriver() :
+        renderAdmin()
+      );
+    }
+
+    document.getElementById("brand-home").onclick = () => { state.portal = "PASSENGER"; state.passengerScreen = "QR_LANDING"; render(); };
+    document.getElementById("quick-reset").onclick = () => {
+      clearInterval(autoDriveTimer);
+      autoDriveTimer = null;
+      state = createInitialState();
+      showToast("Demo reset to initial state");
+      render();
+    };
+
+    render();
+  </script>
+</body>
+</html>
